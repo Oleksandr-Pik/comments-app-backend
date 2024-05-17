@@ -18,7 +18,6 @@ const commentSchema = new Schema(
     typeComment: {
       type: String,
       enum: typeCommentList,
-      // required: [true, "'typeComment' not be empty"],
       // default: 'head'
     },
     replyTo: {
