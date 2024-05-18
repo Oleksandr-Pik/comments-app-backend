@@ -38,12 +38,18 @@ const getOneComment = async (req, res) => {
 const deleteComment = async (req, res) => {
   const { id } = req.params;
   const { _id: author } = req.user;
+
   const result = await Comment.findOneAndDelete({ _id: id, author });
   if (!result) {
     throw HttpError(
       404,
       `Comment with id=${id} not found or not allowed to edit`
     );
+  }
+  if (result.picture) {
+    fs.unlink(result.picture, (err) => {
+      if (err) console.error(err);
+    });
   }
   res.json(result);
 };
@@ -54,16 +60,17 @@ const createComment = async (req, res) => {
 
   if (req.file) {
     await processPicture(req.file.path);
+
+    const { path: tempUpload, filename } = req.file;
+    const id = nanoid();
+    const [extention] = filename.split(".").reverse();
+    const pictureName = `${id}.${extention}`;
+    const resultUpload = path.join(picturesDir, pictureName);
+    await fs.rename(tempUpload, resultUpload);
+  
+    picture = path.join("pictures", pictureName);
   }
 
-  const { path: tempUpload, filename } = req.file;
-  const id = nanoid();
-  const [extention] = filename.split(".").reverse();
-  const pictureName = `${id}.${extention}`;
-  const resultUpload = path.join(picturesDir, pictureName);
-  await fs.rename(tempUpload, resultUpload);
-
-  picture = path.join("pictures", pictureName);
 
   const result = await Comment.create({
     ...req.body,
@@ -86,16 +93,17 @@ const createReplyComment = async (req, res) => {
 
   if (req.file) {
     await processPicture(req.file.path);
+
+    const { path: tempUpload, filename } = req.file;
+    const id = nanoid();
+    const [extention] = filename.split(".").reverse();
+    const pictureName = `${id}.${extention}`;
+    const resultUpload = path.join(picturesDir, pictureName);
+    await fs.rename(tempUpload, resultUpload);
+  
+    picture = path.join("pictures", pictureName);
   }
 
-  const { path: tempUpload, filename } = req.file;
-  const id = nanoid();
-  const [extention] = filename.split(".").reverse();
-  const pictureName = `${id}.${extention}`;
-  const resultUpload = path.join(picturesDir, pictureName);
-  await fs.rename(tempUpload, resultUpload);
-
-  picture = path.join("pictures", pictureName);
 
   const reply = await Comment.create({
     ...req.body,
