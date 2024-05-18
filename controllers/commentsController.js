@@ -1,6 +1,12 @@
+import path from "path";
+import fs from "fs/promises";
+import { nanoid } from "nanoid";
+
 import Comment from "../models/Comments.js";
 
-import { HttpError, ctrlWrapper } from "../helpers/index.js";
+import { HttpError, ctrlWrapper, processPicture } from "../helpers/index.js";
+
+const picturesDir = path.resolve("public", "pictures");
 
 const getAllComments = async (req, res) => {
   const { page = 1, limit = 20, ...filterParams } = req.query;
@@ -34,21 +40,73 @@ const deleteComment = async (req, res) => {
   const { _id: author } = req.user;
   const result = await Comment.findOneAndDelete({ _id: id, author });
   if (!result) {
-    throw HttpError(404, `Comment with id=${id} not found or not allowed to edit`);
+    throw HttpError(
+      404,
+      `Comment with id=${id} not found or not allowed to edit`
+    );
   }
   res.json(result);
 };
 
 const createComment = async (req, res) => {
   const { _id: author } = req.user;
-  const result = await Comment.create({ ...req.body, author, typeComment: 'head' });
+  let picture = null;
+
+  if (req.file) {
+    await processPicture(req.file.path);
+  }
+
+  const { path: tempUpload, filename } = req.file;
+  const id = nanoid();
+  const [extention] = filename.split(".").reverse();
+  const pictureName = `${id}.${extention}`;
+  const resultUpload = path.join(picturesDir, pictureName);
+  await fs.rename(tempUpload, resultUpload);
+
+  picture = path.join("pictures", pictureName);
+
+  const result = await Comment.create({
+    ...req.body,
+    picture,
+    author,
+    typeComment: "head",
+  });
   res.status(201).json(result);
 };
 
 const createReplyComment = async (req, res) => {
   const { _id: author } = req.user;
-  const result = await Comment.create({ ...req.body, author, typeComment: 'head' });
-  res.status(201).json(result);
+  const parentCommentId = req.params.id;
+  const parentComment = await Comment.findById(parentCommentId);
+  let picture = null;
+
+  if (!parentComment) {
+    throw HttpError(404, "Parent comment not found");
+  }
+
+  if (req.file) {
+    await processPicture(req.file.path);
+  }
+
+  const { path: tempUpload, filename } = req.file;
+  const id = nanoid();
+  const [extention] = filename.split(".").reverse();
+  const pictureName = `${id}.${extention}`;
+  const resultUpload = path.join(picturesDir, pictureName);
+  await fs.rename(tempUpload, resultUpload);
+
+  picture = path.join("pictures", pictureName);
+
+  const reply = await Comment.create({
+    ...req.body,
+    picture,
+    author,
+    replyTo: parentCommentId,
+    typeComment: "reply",
+  });
+  parentComment.replies.push(reply._id);
+  await parentComment.save();
+  res.status(201).json(reply);
 };
 
 const updateComment = async (req, res) => {
@@ -64,7 +122,7 @@ const updateComment = async (req, res) => {
 export default {
   getAllComments: ctrlWrapper(getAllComments),
   getOneComment: ctrlWrapper(getOneComment),
-  deleteComment: ctrlWrapper(deleteComment), 
+  deleteComment: ctrlWrapper(deleteComment),
   createComment: ctrlWrapper(createComment),
   createReplyComment: ctrlWrapper(createReplyComment),
   updateComment: ctrlWrapper(updateComment),

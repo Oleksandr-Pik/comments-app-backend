@@ -3,12 +3,11 @@ import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import fs from "fs/promises";
 import path from "path";
+import Jimp from "jimp";
 import { nanoid } from "nanoid";
 
 import User from "../models/User.js";
-
 import { HttpError, ctrlWrapper, sendEmail } from "../helpers/index.js";
-import Jimp from "jimp";
 
 const { JWT_SECRET, BASE_URL } = process.env;
 const avatarsDir = path.resolve("public", "avatars");
@@ -132,16 +131,6 @@ const logout = async (req, res) => {
 
   res.status(204).json({});
 };
-
-// const updateSubscription = async (req, res) => {
-//   const { _id, email, subscription } = req.user;
-//   await User.findByIdAndUpdate(_id, req.body);
-
-//   res.json({
-//     email,
-//     subscription,
-//   });
-// };
 
 const updateAvatar = async (req, res) => {
   if (!req.file) {

@@ -19,17 +19,18 @@ const limits = {
 };
 
 const fileFilter = (req, file, cb) => {
-  const extention = file.originalname.split(".").pop();
-  if (extention === "exe") {
-    return cb(HttpError(400, "Invalid file extention"));
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(HttpError(400,"Invalid file type, only JPG, PNG, and GIF are allowed!"));
   }
-  cb(null, true);
 };
 
 const upload = multer({
   storage,
-  limits,
   fileFilter,
+  limits,
 });
 
 export default upload;

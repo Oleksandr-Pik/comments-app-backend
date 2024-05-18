@@ -7,7 +7,7 @@ import {
 
 import { validateBody } from "../helpers/index.js";
 
-import { authenticate, isEmptyBody, isValidId } from "../middlewares/index.js";
+import { authenticate, isEmptyBody, isValidId, upload } from "../middlewares/index.js";
 
 import commentsController from "../controllers/commentsController.js";
 
@@ -32,6 +32,7 @@ commentsRouter.delete("/:id", isValidId, deleteComment);
 
 commentsRouter.post(
   "/",
+  upload.single("picture"),
   isEmptyBody,
   validateBody(createCommentSchema),
   createComment
@@ -39,6 +40,7 @@ commentsRouter.post(
 
 commentsRouter.post(
   "/:id/replies",
+  upload.single("picture"),
   isEmptyBody,
   validateBody(createCommentSchema),
   createReplyComment

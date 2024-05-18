@@ -18,7 +18,6 @@ const commentSchema = new Schema(
     typeComment: {
       type: String,
       enum: typeCommentList,
-      // default: 'head'
     },
     replyTo: {
       type: Schema.Types.ObjectId,
@@ -51,14 +50,6 @@ export const createCommentSchema = Joi.object({
     "any.required": `Write text of comment`,
   }),
   picture: Joi.string(),
-});
-export const createReplyCommentSchema = Joi.object({
-  text: Joi.string().required().messages({
-    "any.required": `Write text of comment`,
-  }),
-  picture: Joi.string(),
-  // typeComment: Joi.string(),
-  replyTo: Joi.string()
 });
 
 export const updateCommentSchema = Joi.object({
