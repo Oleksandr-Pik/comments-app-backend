@@ -40,8 +40,8 @@
           <code>/users/register</code>
           <p>Для регистрации пользователя необходимо отправить на сервер данные.</p>
           <p>Method: POST</p>
-          <p>Content-Type: application/json</p>
           <pre>
+            Content-Type: application/json
             RequestBody: {
               "name": "yuor name",
               "email": "example@example.com",
@@ -60,14 +60,67 @@
               }
             }
           </pre>
+          <p>Пользователь будет создан в БД. Для добавления аватара исользовался сервис <a href="https://gravatar.com/" target="_blank" rel="noopener noreferrer">gravatar.com</a></p>
+          <p>На почту, указанную при регистрации прийдёт письмо в котором будет ссылка, нажав на которую пользователь потвердит свою электронную почту и в БД поле <code>'verify'</code>  поменяет значение на <code>'true'</code>.</p>
+          <p>Для отправки писем использовался сервис <a href="https://sendgrid.com/" target="_blank" rel="noopener noreferrer">SendGrid</a> </p>
         </li>
-        <li><code>/verify/:verificationToken</code></li>
-        <li><code>/verify</code></li>
-        <li><code>/login</code></li>
-        <li><code>/avatars</code></li>
-        <li><code>/current</code></li>
-        <li><code>/logout</code></li>
-        <li><code>/recaptcha</code></li>
+        <li>
+          <code>/users/verify/:verificationToken</code>
+          <p>Method: GET</p>
+          <p>С этим маршрутом генерируется ссылка для отправки в письме для подтверрждения электронной почты</p>
+          <pre>
+            ResponseBody: {
+              message: "Verification successful"
+            }
+          </pre>
+        </li>
+        <li>
+          <code>/users/verify</code>
+          <p>Этот маршрут используется для повторной отправки электронного письма на указанную почту, если пользователь уже был добавлен в БД и поле <code>'verify'</code>  имеет значение <code>'false'</code>.</p>
+          <p>Method: POST</p>
+          <pre>
+            Content-Type: application/json
+            RequestBody: {
+              "email": "example@example.com"
+            }
+          </pre>
+          <p>Успех:</p>
+          <pre>
+            Status: 200 OK
+            ResponseBody: {
+              message: "Verification email sent"
+            }
+          </pre>
+
+        </li>
+        <li>
+          <code>/users/login</code>
+          <p>Авторизация пользователя в системе</p>
+          <p>Method: POST</p>
+          <pre>
+            Content-Type: application/json
+            RequestBody: {
+              "email": "example@example.com",
+              "password": "examplepassword"
+            }
+          </pre>
+          <p>Успешная авторизация</p>
+          <pre>
+            Status: 200 OK
+            Content-Type: application/json
+            ResponseBody: {
+              "token": "exampletoken",
+              "user": {
+                "name": "yuor name",
+                "email": "example@example.com"
+              }
+            }
+          </pre>
+        </li>
+        <li><code>/users/current</code></li>
+        <li><code>/users/logout</code></li>
+        <li><code>/users/avatars</code></li>
+        <li><code>/users/recaptcha</code></li>
       </ul>
 
       <div class="mb-3">
