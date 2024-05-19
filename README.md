@@ -1,7 +1,7 @@
 # comments-app-backend
 
 SPA-приложение: Комментарии (backend)
-Пользователь может оставлять комментарии и прикреплять к комментарию картинку. Все введенные комментарии оставленные пользователем сохраняются в нереляционной базе данных (MongoDB), включая данные о пользователе (данные которые помогут идентифицировать клиента).
+Пользователь может оставлять комментарии и прикреплять к комментарию картинку. Изображение должно быть не более 320х240 пикселей, при попытке залить изображение большего размера, картинка пропорционально уменьшается до заданных размеров, допустимые форматы файлов: JPG, GIF, PNG. Размер загружаемой картинки не более 2 Мб. Все введенные комментарии оставленные пользователем сохраняются в нереляционной базе данных (MongoDB), включая данные о пользователе (данные которые помогут идентифицировать клиента).
 
 Base URL:
 https://comments-app-backend.onrender.com
@@ -16,7 +16,7 @@ Method: POST
 
             Content-Type: application/json
             RequestBody: {
-              "name": "yuor name",
+              "name": "user name",
               "email": "example@example.com",
               "password": "examplepassword",
               "homePage": "exampleURL" - необязательное поле
@@ -28,7 +28,7 @@ Method: POST
             Content-Type: application/json
             ResponseBody: {
               "user": {
-                "name": "yuor name",
+                "name": "user name",
                 "email": "example@example.com"
               }
             }
@@ -76,6 +76,8 @@ Method: POST
               "password": "examplepassword"
             }
           
+Для автоизации использовался JWT. Срок действия токена - 23 часа.
+
 Успешная авторизация
 
             Status: 200 OK
@@ -83,12 +85,72 @@ Method: POST
             ResponseBody: {
               "token": "exampletoken",
               "user": {
-                "name": "yuor name",
+                "name": "user name",
                 "email": "example@example.com"
               }
             }
           
-/users/avatars
 /users/current
+Method: GET
+
+Текущий пользователь - получить данные пользователя по токену
+
+            Authorization: "Bearer {{token}}"
+          
+Успех
+
+            Status: 200 OK
+            Content-Type: application/json
+            ResponseBody: {
+              "name": "user name",
+              "email": "example@example.com",
+              "homePage": "exampleURL",
+              "avatarURL": "exampleURL"
+            }
+          
 /users/logout
+Логаут и удаление токена из БД
+
+Method: GET
+
+            Authorization: "Bearer {{token}}"
+          
+Успех
+
+            Status: 204 No Content
+          
+/users/avatars
+Method: PATCH
+
+Для изменения аватарки пользователя отправляется запрос
+
+            Content-Type: multipart/form-data
+            Authorization: "Bearer {{token}}"
+            RequestBody: загруженный файл
+          
+Изображение должно быть не более 250х250 пикселей, при попытке залить изображение большего размера, картинка пропорционально уменьшается до заданных размеров, допустимые форматы файлов: JPG, GIF, PNG. Размер загружаемой картинки не более 2 Мб.
+
+Обработанные аватарки сохраняются в каталоге public/avatars, имя файла - это id пользователя.
+
 /users/recaptcha
+Method: POST
+
+Пример использования reCaptcha
+
+Фронтенд часть находится в гит репозитории в папке frontend-demo/.
+
+            method: "POST",
+            headers: {
+              Accept: "application/json, text/plain, */*",
+              "Content-type": "application/json",
+            },
+            RequestBody: {
+              "name": "name",
+              "email": "email",
+              "captcha": {captcha}
+            }
+          
+Работа с комментариями пользователейю. Маршруты:
+/api/comments/
+/api/comments/:id
+/api/comments/:id/replies
