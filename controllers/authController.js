@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import request from "request";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import fs from "fs/promises";
@@ -166,6 +167,29 @@ const updateAvatar = async (req, res) => {
   }
 };
 
+const reCaptchaVerify = async (req, res) => {
+  const { captcha } = req.body;
+
+  if (!captcha) {
+    return res.json({ success: false, msg: "Please select captcha" });
+  }
+
+  const secretKey = "6LcVctwpAAAAAPFBC0NPWXMtE9my6DpQ1jrOwiMz";
+
+  const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captcha}&remoteip=${req.connection.remoteAddress}`;
+
+  request(verifyUrl, (err, response, body) => {
+    const parsedBody = JSON.parse(body);
+    console.log(parsedBody);
+
+    if (parsedBody.success !== undefined && !parsedBody.success) {
+      return res.json({ success: false, msg: "Failed captcha verification" });
+    }
+
+    return res.json({ success: true, msg: "Captcha passed" });
+  });
+}
+
 export default {
   register: ctrlWrapper(register),
   verifyEmail: ctrlWrapper(verifyEmail),
@@ -174,4 +198,5 @@ export default {
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
   updateAvatar: ctrlWrapper(updateAvatar),
+  reCaptchaVerify,
 };

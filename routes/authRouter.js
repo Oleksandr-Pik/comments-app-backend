@@ -48,4 +48,6 @@ authRouter.get("/current", authenticate, authController.getCurrent);
 
 authRouter.post("/logout", authenticate, authController.logout);
 
+authRouter.post("/recaptcha", authController.reCaptchaVerify);
+
 export default authRouter;

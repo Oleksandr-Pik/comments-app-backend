@@ -43,7 +43,7 @@ const deleteComment = async (req, res) => {
   if (!result) {
     throw HttpError(
       404,
-      `Comment with id=${id} not found or not allowed to edit`
+      `Comment with id=${id} not found`
     );
   }
   if (result.picture) {
