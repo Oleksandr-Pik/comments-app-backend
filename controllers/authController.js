@@ -10,7 +10,7 @@ import { nanoid } from "nanoid";
 import User from "../models/User.js";
 import { HttpError, ctrlWrapper, sendEmail } from "../helpers/index.js";
 
-const { JWT_SECRET, BASE_URL } = process.env;
+const { JWT_SECRET, BASE_URL, RECAPTCHA_KEY } = process.env;
 const avatarsDir = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
@@ -174,9 +174,7 @@ const reCaptchaVerify = async (req, res) => {
     return res.json({ success: false, msg: "Please select captcha" });
   }
 
-  const secretKey = "6LcVctwpAAAAAPFBC0NPWXMtE9my6DpQ1jrOwiMz";
-
-  const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captcha}&remoteip=${req.connection.remoteAddress}`;
+  const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_KEY}&response=${captcha}&remoteip=${req.connection.remoteAddress}`;
 
   request(verifyUrl, (err, response, body) => {
     const parsedBody = JSON.parse(body);
