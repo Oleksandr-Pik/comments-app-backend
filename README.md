@@ -5,10 +5,10 @@ SPA-приложение: Комментарии (backend)
 
 Base URL:
 https://comments-app-backend.onrender.com
-Эндпоинты:
+Маршруты:
 /users - Авторизация пользователей
 /api/comments - Работа с коммнтариями пользователей
-Авторизация пользователей. Маршруты:
+Авторизация пользователей. Эндпоинты:
 /users/register
 Для регистрации пользователя необходимо отправить на сервер данные.
 
@@ -139,18 +139,16 @@ Method: POST
 
 Фронтенд часть находится в гит репозитории в папке frontend-demo/.
 
-            method: "POST",
-            headers: {
-              Accept: "application/json, text/plain, */*",
-              "Content-type": "application/json",
-            },
+            method: "POST"
+
+            Content-type: "application/json"
             RequestBody: {
               "name": "name",
               "email": "email",
               "captcha": {captcha}
             }
           
-Работа с комментариями пользователейю. Маршруты:
+Работа с комментариями пользователей. Эндпоинты:
 /api/comments/
 /api/comments/:id
 /api/comments/:id/replies

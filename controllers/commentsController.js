@@ -9,7 +9,7 @@ import { HttpError, ctrlWrapper, processPicture } from "../helpers/index.js";
 const picturesDir = path.resolve("public", "pictures");
 
 const getAllComments = async (req, res) => {
-  const { page = 1, limit = 20, ...filterParams } = req.query;
+  const { page = 1, limit = 25, ...filterParams } = req.query;
   const skip = (page - 1) * limit;
 
   const result = await Comment.find({ ...filterParams }, "-updatedAt", {
@@ -78,7 +78,9 @@ const createComment = async (req, res) => {
     author,
     typeComment: "head",
   });
-  res.status(201).json(result);
+  res.status(201).json({
+    comment: result
+  });
 };
 
 const createReplyComment = async (req, res) => {
