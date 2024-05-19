@@ -14,7 +14,7 @@ const { JWT_SECRET, BASE_URL, RECAPTCHA_KEY } = process.env;
 const avatarsDir = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, homePage } = req.body;
   const user = await User.findOne({ email });
   if (user) {
     throw HttpError(409, "Email in use");
