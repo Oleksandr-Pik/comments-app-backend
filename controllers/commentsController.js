@@ -32,7 +32,9 @@ const getOneComment = async (req, res) => {
   if (!result) {
     throw HttpError(404, `Comment with id=${id} not found`);
   }
-  res.json(result);
+  res.json({
+    comment: result
+  });
 };
 
 const deleteComment = async (req, res) => {
@@ -126,7 +128,9 @@ const updateComment = async (req, res) => {
   if (!result) {
     throw HttpError(404, `Comment with id=${id} not found`);
   }
-  res.json(result);
+  res.json({
+    comment: result
+    });
 };
 
 export default {

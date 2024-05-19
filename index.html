@@ -351,13 +351,190 @@
           </li>
           <li>
             <code>/api/comments/:id</code>
-            
+            <p>Запрос комментария из БД по <code>id</code></p>
+            <p>Method: GET</p>
+            <pre>
+              Authorization: "Bearer {{token}}"
+            </pre>
+            <p>Успех</p>
+            <pre>
+              Status: 200 Ok
+              Content-Type: application/json
+              ResponseBody: {
+                "comment": {
+                  "_id": "664a6d89a1bbd38a44629fdc",
+                  "text": "Test comment 10",
+                  "picture": "pictures\\407AVNLKukRjzmS0I2nyO.jpg",
+                  "typeComment": "head",
+                  "author": "6649f88acdeb58ba81c610a7",
+                  "replies": [],
+                  "createdAt": "2024-05-19T21:22:17.589Z",
+                  "updatedAt": "2024-05-19T21:22:17.589Z"
+                }
+              }
+            </pre>
+            <p>Удаление комментария из БД по <code>id</code></p>
+            <p>Удалить можно только те комментарии, которые принадлежат текущему пользователю.</p>
+            <p>При уделении комментария также удаляется и картинка прикреплённая к нему, если она есть.</p>
+            <p>Method: DELETE</p>
+            <pre>
+              Authorization: "Bearer {{token}}"
+            </pre>
+            <p>Успех</p>
+            <pre>
+              Status: 200 Ok
+              Content-Type: application/json
+              ResponseBody: {
+                "comment": {
+                  контент удаляемого объекта
+                }
+              }
+            </pre>
+            <p>Изменение комментария по <code>id</code></p>
+            <p>Изменять можно только те комментарии, которые принадлежат текущему пользователю.</p>
+            <p>Method: PUT</p>
+            <pre>
+              Content-Type: multipart/form-data
+              Authorization: "Bearer {{token}}"
+              RequestBody: {
+                "text": "new text of comment"
+              }
+            </pre>
+            <p>Успех</p>
+            <pre>
+              Status: 200 Ok
+              Content-Type: application/json
+              ResponseBody: {
+                "comment": {
+                  контент изменённого объекта
+                }
+              }
+            </pre>
           </li>
-          <li><code>/api/comments/:id/replies</code></li>
+          <li>
+            <code>/api/comments/:id/replies</code>
+            <p>Отправка ответа на комментарий <code>id</code></p>
+            <p>Method: POST</p>
+            <pre>
+              Content-Type: multipart/form-data
+              Authorization: "Bearer {{token}}"
+              RequestBody: {
+                "text": "text of comment",
+                "picture": загруженный файл картинки
+              }
+            </pre>
+            <p>
+              Изображение должно быть не более 320х240 пикселей, при попытке
+              залить изображение большего размера, картинка пропорционально
+              уменьшается до заданных размеров, допустимые форматы файлов: JPG,
+              GIF, PNG. Размер загружаемой картинки не более 2 Мб.
+            </p>
+            <p>
+              Обязательное поле <code>author</code> берется из БД по токену
+              авторизации
+            </p>
+            <p>
+              <code>typeComment</code> присваивается значение <code>reply</code>
+            </p>
+            <p>в поле <code>replyTo</code> устанавливается <code>id</code> из параметров запроса.</p>
+            <p>Если все данные коректны прийдёт ответ от сервера</p>
+            <pre>
+              Status: 201 Created
+              Content-Type: application/json
+              ResponseBody: {
+                "comment": {
+                  "text": "Text of comment",
+                  "picture": "pictures\\407AVNLKukRjzmS0I2nyO.jpg",
+                  "typeComment": "reply",
+                  "replyTo": "664535bd4df7a34a686572fc",
+                  "author": "6649f88acdeb58ba81c610a7",
+                  "replies": [],
+                  "_id": "664a6d89a1bbd38a44629fdc",
+                  "createdAt": "2024-05-19T21:22:17.589Z",
+                  "updatedAt": "2024-05-19T21:22:17.589Z"
+                }
+              }
+            </pre>
+          </li>
         </ul>
       </div>
 
-      <div class="mb-3"></div>
+      <div class="mb-3">
+        <h3>Схемы данных </h3>
+        <p>User</p>
+        <pre>
+          {
+            name: {
+              type: String,
+              required: [true, "Name is required"],
+            },
+            email: {
+              type: String,
+              match: emailRegexp,
+              required: [true, "Email is required"],
+              unique: true,
+            },
+            password: {
+              type: String,
+              minLength: 6,
+              required: [true, "Password is required"],
+            },
+            homePage: {
+              type: String,
+              match: urlRegexp,
+              default: "",
+            },
+            avatarURL: {
+              type: String,
+              required: true,
+            },
+            token: {
+              type: String,
+              default: null,
+            },
+            verify: {
+              type: Boolean,
+              default: false,
+            },
+            verificationToken: {
+              type: String,
+              default: null,
+            },
+          }
+        </pre>
+        <p>Comment</p>
+        <pre>
+          {
+            text: {
+              type: String,
+              required: [true, "'text' not be empty"],
+            },
+            picture: {
+              type: String,
+            },
+            typeComment: {
+              type: String,
+              enum: ["head", "reply"],
+            },
+            replyTo: {
+              type: Schema.Types.ObjectId,
+              ref: "comment",
+              required: false,
+            },
+            author: {
+              type: Schema.Types.ObjectId,
+              ref: "user",
+              required: true,
+            },
+            replies: [{
+              type: Schema.Types.ObjectId,
+              ref: "Comment",
+              default: [],
+              required: false
+            }]
+          }
+        </pre>
+      </div>
     </div>
 
     <script></script>
